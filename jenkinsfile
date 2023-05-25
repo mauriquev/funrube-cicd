@@ -20,6 +20,14 @@ pipeline {
                     changes = checkout([$class: 'GitSCM']).pollingBaseline()
                     if (changes) {
                         echo 'Changes detected. Proceeding with deployment...'
+                        sh "git diff --name-only HEAD^ HEAD | grep lambda_function.py"
+                        def hasChanges = sh(script: "git diff --name-only HEAD^ HEAD | grep lambda_function.py", returnStatus: true)
+                        if (hasChanges == 0) {
+                            echo 'Changes found in lambda_function.py. Proceeding with deployment...'
+                        } else {
+                            echo 'No changes found in lambda_function.py. Skipping deployment...'
+                            return
+                        }
                     } else {
                         echo 'No changes detected. Skipping deployment...'
                         return
@@ -40,4 +48,3 @@ pipeline {
         }
     }
 }
-
