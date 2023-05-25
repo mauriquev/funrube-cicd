@@ -17,6 +17,7 @@ pipeline {
         stage('Check Changes') {
             steps {
                 script {
+                    echo 'YOU MADE IT HERE'
                     changes = checkout([$class: 'GitSCM']).pollingBaseline()
                     if (changes) {
                         echo 'Changes detected. Proceeding with deployment...'
