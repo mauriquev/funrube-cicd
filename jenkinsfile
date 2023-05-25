@@ -3,15 +3,28 @@ pipeline {
     environment {
         AWS_ACCESS_KEY_ID = credentials('aws-credentials')
         AWS_SECRET_ACCESS_KEY = credentials('aws-credentials')
-        AWS_REGION = 'us-east-1'  
+        AWS_REGION = 'us-east-1'
         LAMBDA_FUNCTION_NAME = 'EmailRetrival' // name of the lambda function
     }
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', 
+                git branch: 'main',
                     credentialsId: 'github-token',
                     url: 'https://github.com/mauriquev/funtube-cicd.git'
+            }
+        }
+        stage('Check Changes') {
+            steps {
+                script {
+                    changes = checkout([$class: 'GitSCM']).pollingBaseline()
+                    if (changes) {
+                        echo 'Changes detected. Proceeding with deployment...'
+                    } else {
+                        echo 'No changes detected. Skipping deployment...'
+                        return
+                    }
+                }
             }
         }
         stage('Test') {
@@ -27,3 +40,4 @@ pipeline {
         }
     }
 }
+
