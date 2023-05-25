@@ -15,27 +15,19 @@ pipeline {
             }
         }
         stage('Check Changes') {
-            steps {
-                script {
-                    echo 'YOU MADE IT HERE'
-                    changes = checkout([$class: 'GitSCM']).pollingBaseline()
-                    if (changes) {
-                        echo 'Changes detected. Proceeding with deployment...'
-                        sh "git diff --name-only HEAD^ HEAD | grep lambda_function.py"
-                        def hasChanges = sh(script: "git diff --name-only HEAD^ HEAD | grep lambda_function.py", returnStatus: true)
-                        if (hasChanges == 0) {
-                            echo 'Changes found in lambda_function.py. Proceeding with deployment...'
-                        } else {
-                            echo 'No changes found in lambda_function.py. Skipping deployment...'
-                            return
-                        }
-                    } else {
-                        echo 'No changes detected. Skipping deployment...'
-                        return
-                    }
-                }
+    steps {
+        script {
+            sh "git fetch origin"
+            def hasChanges = sh(script: "git diff --name-only origin/main -- lambda_function.py", returnStatus: true)
+            if (hasChanges == 0) {
+                echo 'Changes found in lambda_function.py. Proceeding with deployment...'
+            } else {
+                echo 'No changes found in lambda_function.py. Skipping deployment...'
+                return
             }
         }
+    }
+}
         stage('Test') {
             steps {
                 sh 'python -m unittest discover tests'
