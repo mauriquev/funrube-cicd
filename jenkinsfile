@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('aws-credentials')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-credentials')
+        AWS_REGION = 'us-east-1'  
+        LAMBDA_FUNCTION_NAME = 'EmailRetrival' 
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', 
+                    credentialsId: 'github-token',
+                    url: 'https://github.com/mauriquev/funtube-cicd.git'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'python -m unittest discover tests'
+            }
+        }
+        stage('Deploy to AWS Lambda') {
+            steps {
+                sh 'pip install --user awscli'
+                sh 'aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://path/to/your/lambda/deployment/package.zip'
+            }
+        }
+    }
+}
