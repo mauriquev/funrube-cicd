@@ -1,7 +1,7 @@
 import json
 import boto3
 
-def lambda_handler(event, contex):
+def lambda_handler(event, context):
     # Retrieve the email and event data from the event object
     email = event['body']['email']
     eventData = event['body']['eventData']
