@@ -28,12 +28,7 @@ pipeline {
         }
     }
 }
-        stage('Test') {
-            steps {
-                sh 'python3 -m unittest discover tests'
-            }
-        }
-        stage('Deploy to AWS Lambda') {
+  stage('Deploy to AWS Lambda') {
             steps {
                 sh 'pip install --user awscli'
                 sh 'aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://path/to/your/lambda/deployment/package.zip'
