@@ -5,33 +5,38 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('aws-credentials')
         AWS_REGION = 'us-east-1'
         LAMBDA_FUNCTION_NAME = 'EmailRetrival' // name of the lambda function
+        GITHUB_REPO_URL = 'https://github.com/mauriquev/funtube-cicd.git'
+        GITHUB_BRANCH = 'main'
     }
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
+                git branch: "${env.GITHUB_BRANCH}",
                     credentialsId: 'github-token',
-                    url: 'https://github.com/mauriquev/funtube-cicd.git'
+                    url: "${env.GITHUB_REPO_URL}"
             }
         }
         stage('Check Changes') {
-    steps {
-        script {
-            sh "git fetch origin"
-            def hasChanges = sh(script: "git diff --name-only origin/main -- lambda_function.py", returnStatus: true)
-            if (hasChanges == 0) {
-                echo 'Changes found in lambda_function.py. Proceeding with deployment...'
-            } else {
-                echo 'No changes found in lambda_function.py. Skipping deployment...'
-                return
+            steps {
+                script {
+                    sh "git fetch origin"
+                    def hasChanges = sh(script: "git diff --name-only origin/main -- lambda_function.py", returnStatus: true)
+                    if (hasChanges == 0) {
+                        echo 'Changes found in lambda_function.py. Proceeding with deployment...'
+                    } else {
+                        echo 'No changes found in lambda_function.py. Skipping deployment...'
+                        return
+                    }
+                }
             }
         }
-    }
-}
-  stage('Deploy to AWS Lambda') {
+        stage('Deploy to AWS Lambda') {
+            when {
+                changeset "**/lambda_function.py"
+            }
             steps {
                 sh 'pip install --user awscli'
-                sh 'aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://path/to/your/lambda/deployment/package.zip'
+                sh 'aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://lambda_function.py'
             }
         }
     }
