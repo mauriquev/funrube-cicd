@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     sh "git fetch origin"
-                    def hasChanges = sh(script: "git diff --name-only origin/main -- lambda_function.py", returnStatus: true)
+                    def hasChanges = sh(script: "git diff --name-only origin/${env.GITHUB_BRANCH} -- lambda_function.py", returnStatus: true)
                     if (hasChanges == 0) {
                         echo 'Changes found in lambda_function.py. Proceeding with deployment...'
                     } else {
@@ -36,7 +36,8 @@ pipeline {
             }
             steps {
                 sh 'pip install --user awscli'
-                sh 'aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://lambda_function.py'
+                sh 'zip -r lambda_function.zip lambda_function.py'
+                sh 'aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://lambda_function.zip'
             }
         }
     }
