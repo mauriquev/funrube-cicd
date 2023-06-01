@@ -33,7 +33,7 @@ def lambda_handler(event, context):
             Endpoint=event['payload']['email']
         )
         # Customize the notification message here
-        notification_message = 'Thank you for subscribing to Funtube, we keep you updated on you selected events price.'
+        notification_message = 'Thank you for subscribing to Funtube, we will keep you updated on you selected events price.'
         # Send the customized notification to the user
         response = sns.publish(
             TopicArn=sns_topic_arn,
