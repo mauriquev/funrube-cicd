@@ -24,7 +24,7 @@ def lambda_handler(event, context):
             )
     # Subscribe the user's email to an SNS topic
     sns = boto3.client('sns')
-    # Replace the sns_topic_arn with your SNS topic ARN
+    
     sns_topic_arn = 'arn:aws:sns:us-east-1:035082996281:email'
     try:
         response = sns.subscribe(
@@ -32,7 +32,7 @@ def lambda_handler(event, context):
             Protocol='email',
             Endpoint=event['payload']['email']
         )
-        # Customize the notification message here
+        # cuztimized notification messege 
         notification_message = 'Thank you for subscribing to Funtube, we keep you updated on you selected events price.'
         # Send the customized notification to the user
         response = sns.publish(
@@ -46,7 +46,7 @@ def lambda_handler(event, context):
             'body': json.dumps('Email registered successfully and user subscribed to notifications')
         }
     except Exception as e:
-        # Handle any errors that occur during the subscription process
+        # error response 
         return {
             'statusCode': 500,
             'body': json.dumps('Error subscribing user to notifications: {}'.format(str(e)))
